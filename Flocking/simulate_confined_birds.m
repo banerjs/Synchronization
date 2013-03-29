@@ -1,6 +1,6 @@
-%%SIMULATE_VICSEK_BIRDS.m
-% This script is to simulate self propelled particles in a manner
-% described in the Vicsek paper
+%%SIMULATE_CONFINED_BIRDS.m
+% This simulation is used to simulate birds confined to move in one
+% direction, and remain within a particular width
 
 clear all; clc;
 
@@ -13,17 +13,17 @@ t = 0:dT:T; % Array of times that the simulation is to run for
 reruns = 1;
 fps = 1/dT;
 frames = moviein(size(t,2));
-SAVE_MOVIE = 1;
+SAVE_MOVIE = 0;
 
 % Setup the model parameters
 POPULATION = 50; % Number of birds to simulate
 NOISE = 0; % Magnitude of Noise
 SPEED = 5; % Magnitude of the velocity
 FIELD = 50; % Size of the arena
-RADIUS = 10; % Field of interaction
+RADIUS = 2; % Field of interaction
 
 % Initialize the birds
-theta = rand(1,POPULATION)*2*pi;
+theta = rand(1,POPULATION)*pi;
 positions = rand(2,POPULATION).*FIELD;
 
 % Helper functions
@@ -38,13 +38,20 @@ for i = 1:size(t,2)
     frames(:,i) = getframe;
     
     % Update the heading and position of all the birds
-    positions(1,:) = modulo(positions(1,:)+SPEED*dT.*cos(theta), FIELD);
+    positions(1,:) = positions(1,:)+SPEED*dT.*cos(theta);
     positions(2,:) = modulo(positions(2,:)+SPEED*dT.*sin(theta), FIELD);
-
+    
     for j = 1:POPULATION
+        if RADIUS < 1
+            break;
+        end
         neighbours = ((abs(positions(1,:)-positions(1,j)) < RADIUS) & (abs(positions(2,:)-positions(2,j)) < RADIUS));
         theta(j) = modulo(mean(theta(neighbours)) + NOISE*randn(), 2*pi);
     end
+    
+    % Apply confinement rules
+    need = (positions(1,:)<=0 | positions(1,:)>=FIELD);
+    theta(need) = pi - theta(need);
 end
 % endfor
 

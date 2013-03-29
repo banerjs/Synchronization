@@ -13,13 +13,14 @@ t = 0:dT:T; % Array of times that the simulation is to run for
 reruns = 1;
 fps = 1/dT;
 frames = moviein(size(t,2));
+SAVE_MOVIE = 1;
 
 % Setup the model parameters
-POPULATION = 200; % Number of birds to simulate
-NOISE = pi/40; % Magnitude of Noise
+POPULATION = 50; % Number of birds to simulate
+NOISE = 0; % Magnitude of Noise
 SPEED = 5; % Magnitude of the velocity
 FIELD = 50; % Size of the arena
-ATTRACT_RADIUS = 3; % Field of attraction
+ATTRACT_RADIUS = 10; % Field of attraction
 REPULSE_RADIUS = 1; % Field of repulsion
 
 % Initialize the birds
@@ -34,7 +35,7 @@ for i = 1:size(t,2)
     % Plot the positions of the birds
     plot(positions(1,:), positions(2,:), '.');
     axis([0 FIELD 0 FIELD]);
-    title(['N = ', num2str(POPULATION)]);
+    title(['N = ', num2str(POPULATION), ', R = ', num2str(ATTRACT_RADIUS), ', r = ', num2str(REPULSE_RADIUS)]);
     frames(:,i) = getframe;
     
     % Update the heading and position of all the birds
@@ -63,3 +64,8 @@ figure;
 plot(positions(1,:), positions(2,:), '.');
 axis([0 FIELD 0 FIELD]);
 title(['Final Position, N = ', num2str(POPULATION)]);
+
+% Save the movie
+if SAVE_MOVIE == 1
+    movie2avi(frames, strcat('RepulsePopulation',num2str(POPULATION),'Radius',num2str(ATTRACT_RADIUS), '.avi'));
+end
