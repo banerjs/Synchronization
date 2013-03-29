@@ -6,6 +6,7 @@ clear all; clc;
 %% Definitions of parameters
 TIME_KEEPER = 1; % 0->there is no time-keeper. 1->there are time-keepers
 MAX_NUM_KEEPERS = 10; % Number of time-keepers in the simulation
+DISCRETE_TIME = 1; % Parameter for discretized times
 
 MAX_SQRT_POP = 100;  % Axis size
 CORRECT_TIME = 20;  % Correct time of the simulation
@@ -13,7 +14,8 @@ DEVIATION_TIME = 5; % Std. Dev. of time in population
 NORMAL_DISTRIBUTION = 0; % Decide if noise is randomly distributed
 
 CHANGE_FUNC = {@(x,y) ([mean([x,y]), mean([x,y])]); % Normal interaction
-               @(time,y) ([time, time])};           % Timer interaction
+               @(time,y) ([time, time]);           % Timer interaction
+               @(x,y) (round(mean([x,y])*[1,1]))};  % Discretized interact
 
 SIMULATION_TIME = 100; % Number of timesteps to be simulated for
 THRESHOLD_DEVIATION = 0.01; % Set a threshold Deviation
@@ -67,10 +69,18 @@ for SQRT_POP = tests
                     elseif any(all(repmat(meeters2,size(keeper,1),1)==keeper, 2))
                         new_times = CHANGE_FUNC{2}(people(meeters2(1),meeters2(2)), people(meeters1(1),meeters1(2)));
                     else
-                        new_times = CHANGE_FUNC{1}(people(meeters1(1),meeters1(2)), people(meeters2(1),meeters2(2)));
+                        if DISCRETE_TIME == 1
+                            new_times = CHANGE_FUNC{3}(people(meeters1(1),meeters1(2)), people(meeters2(1),meeters2(2)));
+                        else
+                            new_times = CHANGE_FUNC{1}(people(meeters1(1),meeters1(2)), people(meeters2(1),meeters2(2)));
+                        end
                     end
                 else
-                    new_times = CHANGE_FUNC{1}(people(meeters1(1),meeters1(2)), people(meeters2(1),meeters2(2)));
+                    if DISCRETE_TIME == 1
+                        new_times = CHANGE_FUNC{3}(people(meeters1(1),meeters1(2)), people(meeters2(1),meeters2(2)));
+                    else
+                        new_times = CHANGE_FUNC{1}(people(meeters1(1),meeters1(2)), people(meeters2(1),meeters2(2)));
+                    end
                 end
                 people(meeters2(1),meeters2(2)) = new_times(1);
                 people(meeters1(1),meeters1(2)) = new_times(2);

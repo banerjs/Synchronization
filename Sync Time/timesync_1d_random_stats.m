@@ -7,6 +7,7 @@ clear all; clc;
 %% Definitions of parameters for the timesync_1d simulation
 TIME_KEEPER = 0; % 0->there is no time-keeper. 1->there are time-keepers
 MAX_NUM_KEEPERS = 100; % Number of time-keepers that are present in the simulation
+DISCRETE_TIME = 0; % Parameter for if time is discretized
 
 MAX_POPULATION = 500;  % Number of people
 CORRECT_TIME = 20;  % Correct time of the simulation
@@ -14,7 +15,9 @@ DEVIATION_TIME = 5; % Std. Dev. of time in population
 NORMAL_DISTRIBUTION = 1; % Decide if noise is randomly distributed
 
 CHANGE_FUNC = {@(x,y) ([mean([x,y]), mean([x,y])]); % Normal interaction
-               @(time,y) ([time, time])};           % Timer interaction
+               @(time,y) ([time, time]);           % Timer interaction
+               @(x,y) (round(mean([x,y])*[1,1]))};  % Discretized interact
+
 
 SIMULATION_TIME = 100; % Number of timesteps to be simulated for
 
@@ -66,10 +69,18 @@ for NUM_KEEPERS = tests
                     elseif any(meeters(2) == keeper)
                         new_times = CHANGE_FUNC{2}(people(meeters(2)), people(meeters(1)));
                     else
-                        new_times = CHANGE_FUNC{1}(people(meeters(1)), people(meeters(2)));
+                        if DISCRETE_TIME == 1
+                            new_times = CHANGE_FUNC{3}(people(meeters(1)), people(meeters(2)));
+                        else
+                            new_times = CHANGE_FUNC{1}(people(meeters(1)), people(meeters(2)));
+                        end
                     end
                 else
-                    new_times = CHANGE_FUNC{1}(people(meeters(1)), people(meeters(2)));
+                    if DISCRETE_TIME == 1
+                        new_times = CHANGE_FUNC{3}(people(meeters(1)), people(meeters(2)));
+                    else
+                        new_times = CHANGE_FUNC{1}(people(meeters(1)), people(meeters(2)));
+                    end
                 end
                 people(meeters(1)) = new_times(1);
                 people(meeters(2)) = new_times(2);

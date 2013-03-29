@@ -19,7 +19,8 @@ DEVIATION_UPDATE_TIME = 0.5; % Deviation in the update time for the sim
 NORMAL_DISTRIBUTION = 1; % Is the noise a normal distribution?
 
 CHANGE_FUNC = {@(x,y) ([mean([x,y]), mean([x,y])]); % Normal interaction
-               @(time,y) ([time, time])};           % Timer interaction
+               @(time,y) ([time, time]);           % Timer interaction
+               @(x,y) (round(mean([x,y])*[1,1]))};  % Discretized interact
 INDEX_FUNC = @(x) ((x+abs(x))/2); % Helps with indexing the array
 
 SIMULATION_TIME = 100; % Number of timesteps to be simulated for
@@ -100,7 +101,11 @@ for NUM_KEEPERS = tests
                     neighbours = people(rstart:rend,cstart:cend);
 
                     % Update the time at location
-                    people(j,k) = mean(neighbours(:));
+                    if DISCRETE_TIME == 1
+                        people(j,k) = round(mean(neighbours(:)));
+                    else
+                        people(j,k) = mean(neighbours(:));
+                    end
                 end
             end
             % endfor loop over people

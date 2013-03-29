@@ -1,4 +1,4 @@
-%%TIMESYNC_CONTINUOUS.m
+%%TIMESYNC_2D_NEIGHBOURS.m
 % This is a 2-D simulation of update of time happening and affecting only
 % neighbours. Very, very similar to the sandpile model.
 
@@ -9,6 +9,7 @@ TIME_KEEPER = 1; % 0->there is no time-keeper, 1->there are time-keepers
 NUM_KEEPERS = 50; % Number of conductors in the arena
 UPDATE_TIME = 0; % Time updates during model?
 UPDATE_NOISE = 1; % Are the updates noisy?
+DISCRETE_TIME = 1; % Parameter for discretized time only
 
 SQRT_POP = 100; % Give dimensions for the arena
 POPULATION = SQRT_POP * SQRT_POP; % Number of people in this experiment
@@ -20,7 +21,8 @@ DEVIATION_UPDATE_TIME = 0.5; % Deviation in the update time for the sim
 NORMAL_DISTRIBUTION = 1; % Is the noise a normal distribution?
 
 CHANGE_FUNC = {@(x,y) ([mean([x,y]), mean([x,y])]); % Normal interaction
-               @(time,y) ([time, time])};           % Timer interaction
+               @(time,y) ([time, time]);           % Timer interaction
+               @(x,y) (round(mean([x,y])*[1,1]))};  % Discretized interact
 INDEX_FUNC = @(x) ((x+abs(x))/2); % Helps with indexing the array
 
 SIMULATION_TIME = 100; % Number of timesteps to be simulated for
@@ -101,7 +103,11 @@ for i = 1:SIMULATION_TIME
             neighbours = people(rstart:rend,cstart:cend);
             
             % Update the time at location
-            people(j,k) = mean(neighbours(:));
+            if DISCRETE_TIME == 1
+                people(j,k) = round(mean(neighbours(:)));
+            else
+                people(j,k) = mean(neighbours(:));
+            end
         end
     end
     % endfor loop over people

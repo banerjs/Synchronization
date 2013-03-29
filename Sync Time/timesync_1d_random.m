@@ -1,4 +1,4 @@
-%%TIMESYNC_1D.m
+%%TIMESYNC_1D_RANDOM.m
 % This script runs the time synchronization problem. There are 2 basic
 % behaviors of this program - 1) There is no fixed time-keeper and 2) There
 % is a fixed time-keeper. The 2 behaviours are triggered based on the
@@ -9,15 +9,17 @@ clear all; clc;
 %% Definitions of parameters
 TIME_KEEPER = 1; % 0->there is no time-keeper. 1->there are time-keepers
 NUM_KEEPERS = 100; % The number of time-keepers in the simulation
+DISCRETE_TIME = 0; % Parameter for if time is discretized
 
 POPULATION = 1000;  % Number of people
 CORRECT_TIME = 20;  % Correct time of the simulation
 DEVIATION_TIME = 5; % Std. Dev. of time in population
 NORMAL_DISTRIBUTION = 1; % Choose if normal distribution of noise
 
-CHANGE_FUNC = {@(x,y) ([mean([x,y]), mean([x,y])]); % Normal interaction
-               @(time,y) ([time, time])};           % Timer interaction
-
+CHANGE_FUNC = {@(x,y) ([mean([x,y]), mean([x,y])]); % Normal interact
+               @(time,y) ([time, time]);            % Timer interact
+               @(x,y) (round(mean([x,y])*[1,1]))};  % Discretized interact
+               
 SIMULATION_TIME = 100; % Number of timesteps to be simulated for
 
 %% Definition of simulation behavior
@@ -67,10 +69,18 @@ for i = 1:SIMULATION_TIME
             elseif any(meeters(2) == keeper)
                 new_times = CHANGE_FUNC{2}(people(meeters(2)), people(meeters(1)));
             else
-                new_times = CHANGE_FUNC{1}(people(meeters(1)), people(meeters(2)));
+                if DISCRETE_TIME == 1
+                    new_times = CHANGE_FUNC{3}(people(meeters(1)), people(meeters(2)));
+                else
+                    new_times = CHANGE_FUNC{1}(people(meeters(1)), people(meeters(2)));
+                end
             end
         else
-            new_times = CHANGE_FUNC{1}(people(meeters(1)), people(meeters(2)));
+            if DISCRETE_TIME == 1
+                new_times = CHANGE_FUNC{3}(people(meeters(1)), people(meeters(2)));
+            else
+                new_times = CHANGE_FUNC{1}(people(meeters(1)), people(meeters(2)));
+            end
         end
         people(meeters(1)) = new_times(1);
         people(meeters(2)) = new_times(2);
