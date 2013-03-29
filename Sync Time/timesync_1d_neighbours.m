@@ -1,17 +1,16 @@
-%%TIMESYNC_1D_RANDOM.m
-% This script runs the time synchronization problem. There are 2 basic
-% behaviors of this program - 1) There is no fixed time-keeper and 2) There
-% is a fixed time-keeper. The 2 behaviours are triggered based on the
-% variable TIME_KEEPER
+%%TIMESYNC_1D_NEIGHBOURS.m
+% This is a script to simulate time synchronization between neighbours on a
+% line. Similar to 1D_TIMESYNC_RANDOM.
 
 clear all; clc;
 
-%% Definitions of parameters
-TIME_KEEPER = 1; % 0->there is no time-keeper. 1->there are time-keepers
+%% Definition of parameters
+TIME_KEEPER = 0; % 0->there is no time-keeper. 1->there are time-keepers
 NUM_KEEPERS = 100; % The number of time-keepers in the simulation
 DISCRETE_TIME = 0; % Parameter for if time is discretized
 
 POPULATION = 1000;  % Number of people
+NUM_NEIGHBOURS = 800; % No. of neighbours to interact with. 'ALL' is valid
 CORRECT_TIME = 20;  % Correct time of the simulation
 DEVIATION_TIME = 5; % Std. Dev. of time in population
 NORMAL_DISTRIBUTION = 1; % Choose if normal distribution of noise
@@ -29,9 +28,12 @@ SHOW_SIMULATION = 1;
 SHOW_RESULTS = 1;
 
 %% Creation of variables
+if strcmpi('ALL', NUM_NEIGHBOURS) % If everyone is affected by everyone
+    NUM_NEIGHBOURS = POPULATION + 1;
+end
+
 if NORMAL_DISTRIBUTION == 1
-    people = CORRECT_TIME + DEVIATION_TIME.*randn(1,POPULATION); % Times of
-                                                                 % people
+    people = CORRECT_TIME + DEVIATION_TIME.*randn(1,POPULATION); % Times of people
 else
     people = (rand(1,POPULATION).*2.*DEVIATION_TIME) + (CORRECT_TIME-DEVIATION_TIME);
 end
@@ -57,43 +59,49 @@ for i = 1:SIMULATION_TIME
     end
     
     if SHOW_SIMULATION == 1
+        subplot(2,1,1);
         plot(1:POPULATION, people, 1:POPULATION, CORRECT_TIME);
         axis([0, POPULATION, ymin, ymax]);
+        subplot(2,1,2);
+        bar(unique(people),histc(people, unique(people)));
+        xlim([CORRECT_TIME-DEVIATION_TIME CORRECT_TIME+DEVIATION_TIME]);
         drawnow; pause(0.1);
     end
     
-    num_interact = randi(floor(POPULATION/2)); % Number of interactions
+    [sorted, ix] = sort(people);
+    npeople = people;
     
-    for j = 1:num_interact                     % Simulate interations
-        meeters = sort(randi(POPULATION,1,2)); % Select "meeters"
-        if TIME_KEEPER == 1
-            if any(meeters(1) == keeper)
-                new_times = CHANGE_FUNC{2}(people(meeters(1)), people(meeters(2)));
-            elseif any(meeters(2) == keeper)
-                new_times = CHANGE_FUNC{2}(people(meeters(2)), people(meeters(1)));
-            else
-                if DISCRETE_TIME == 1
-                    new_times = CHANGE_FUNC{3}(people(meeters(1)), people(meeters(2)));
-                else
-                    new_times = CHANGE_FUNC{1}(people(meeters(1)), people(meeters(2)));
-                end
-            end
+    for p = 1:POPULATION % Update the times of everyone
+        if p <= NUM_NEIGHBOURS
+            start = 1;
         else
-            if DISCRETE_TIME == 1
-                new_times = CHANGE_FUNC{3}(people(meeters(1)), people(meeters(2)));
-            else
-                new_times = CHANGE_FUNC{1}(people(meeters(1)), people(meeters(2)));
-            end
+            start = p - NUM_NEIGHBOURS;
         end
-        people(meeters(1)) = new_times(1);
-        people(meeters(2)) = new_times(2);
+        if p > POPULATION - NUM_NEIGHBOURS
+            last = POPULATION;
+        else
+            last = p + NUM_NEIGHBOURS;
+        end
+        neighbours = ix(start:last);
+        
+        if DISCRETE_TIME == 1
+            npeople(ix(p)) = round(mean(people(neighbours)));
+        else
+            npeople(ix(p)) = mean(people(neighbours));
+        end
     end
+    
+    people = npeople;
 end
 % endfor
 
 if SHOW_RESULTS == 1
+    subplot(2,1,1);
     plot(1:POPULATION, people, 1:POPULATION, CORRECT_TIME);
     axis([0, POPULATION, ymin, ymax]);
     title(['Population Time Range = [', num2str(min(people)), ' , ', num2str(max(people)), ']']);
     text(POPULATION/2,ymax-0.5,strcat('Number of simulation steps = ', num2str(i)));
+    subplot(2,1,2);
+    bar(unique(people),histc(people, unique(people)));
+    xlim([CORRECT_TIME-DEVIATION_TIME CORRECT_TIME+DEVIATION_TIME]);
 end

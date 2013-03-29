@@ -32,6 +32,9 @@ if NORMAL_DISTRIBUTION == 1
 else
     people = (rand(SQRT_POP).*2.*DEVIATION_TIME) + (CORRECT_TIME-DEVIATION_TIME);
 end
+if DISCRETE_TIME == 1 % Discretize time if required
+    people = round(people);
+end
 
 if TIME_KEEPER == 1
     keeper = zeros(NUM_KEEPERS,2);
@@ -44,7 +47,7 @@ end
 %% Simulation of setup
 for i = 1:SIMULATION_TIME
     if SHOW_SIMULATION == 1 && mod(i,SIMULATION_FACTORED) == 0
-        imagesc(people,[15 25]);
+        imagesc(people,[15, 25]);
         drawnow;
     end
     

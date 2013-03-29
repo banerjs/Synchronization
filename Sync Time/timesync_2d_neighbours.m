@@ -36,6 +36,9 @@ if NORMAL_DISTRIBUTION == 1
 else
     people = (rand(SQRT_POP).*2.*DEVIATION_INIT_TIME) + (CORRECT_INIT_TIME-DEVIATION_INIT_TIME);
 end
+if DISCRETE_TIME == 1 % Discretize time if required
+    people = round(people);
+end
 
 if TIME_KEEPER == 1
     keeper = zeros(NUM_KEEPERS,2);
@@ -57,9 +60,9 @@ drawnow;
 for i = 1:SIMULATION_TIME
     if SHOW_SIMULATION == 1 && mod(i,SIMULATION_FACTORED) == 0
         if UPDATE_TIME == 1
-            imagesc(people,[CORRECT_INIT_TIME+(i-1)*CORRECT_UPDATE_TIME-DEVIATION_INIT_TIME CORRECT_INIT_TIME+(i-1)*CORRECT_UPDATE_TIME+DEVIATION_INIT_TIME]);
+            imagesc(people,[CORRECT_INIT_TIME+(i-1)*CORRECT_UPDATE_TIME-DEVIATION_INIT_TIME, CORRECT_INIT_TIME+(i-1)*CORRECT_UPDATE_TIME+DEVIATION_INIT_TIME]);
         else
-            imagesc(people,[CORRECT_INIT_TIME-DEVIATION_INIT_TIME CORRECT_INIT_TIME+DEVIATION_INIT_TIME])
+            imagesc(people,[CORRECT_INIT_TIME-DEVIATION_INIT_TIME, CORRECT_INIT_TIME+DEVIATION_INIT_TIME])
         end
         % drawnow;
         frames(:,i) = getframe;

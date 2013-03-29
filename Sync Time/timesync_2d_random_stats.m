@@ -43,6 +43,9 @@ for SQRT_POP = tests
         else
             people = (rand(SQRT_POP).*2.*DEVIATION_TIME) + (CORRECT_TIME-DEVIATION_TIME);
         end
+        if DISCRETE_TIME == 1 % Discretize time if required
+            people = round(people);
+        end
 
         if TIME_KEEPER == 1
             keeper = zeros(NUM_KEEPERS,2);
@@ -63,7 +66,7 @@ for SQRT_POP = tests
             for j = 1:num_interact                     % Simulate interations
                 meeters1 = [randi(SQRT_POP), randi(SQRT_POP)];
                 meeters2 = [randi(SQRT_POP), randi(SQRT_POP)];
-                if TIME_KEEPER == 1
+                if TIME_KEEPER == 5
                     if any(all(repmat(meeters1,size(keeper,1),1)==keeper, 2))
                         new_times = CHANGE_FUNC{2}(people(meeters1(1),meeters1(2)), people(meeters2(1),meeters2(2)));
                     elseif any(all(repmat(meeters2,size(keeper,1),1)==keeper, 2))

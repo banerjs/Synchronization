@@ -47,6 +47,9 @@ for NUM_KEEPERS = tests
         else
             people = (rand(SQRT_POP).*2.*DEVIATION_INIT_TIME) + (CORRECT_INIT_TIME-DEVIATION_INIT_TIME);
         end
+        if DISCRETE_TIME == 1 % Discretize time if required
+            people = round(people);
+        end
 
         if TIME_KEEPER == 1
             keeper = zeros(NUM_KEEPERS,2);

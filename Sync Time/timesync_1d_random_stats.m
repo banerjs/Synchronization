@@ -41,6 +41,9 @@ for NUM_KEEPERS = tests
         else
             people = (rand(1,POPULATION).*2.*DEVIATION_TIME) + (CORRECT_TIME-DEVIATION_TIME);
         end
+        if DISCRETE_TIME == 1 % Discretize time if required
+            people = round(people);
+        end
         
         if TIME_KEEPER == 1
             keeper = zeros(1,NUM_KEEPERS);
