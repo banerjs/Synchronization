@@ -6,11 +6,14 @@ clear all; clc;
 
 %% Definition of parameters
 TIME_KEEPER = 0; % 0->there is no time-keeper. 1->there are time-keepers
-NUM_KEEPERS = 100; % The number of time-keepers in the simulation
-DISCRETE_TIME = 0; % Parameter for if time is discretized
+NUM_KEEPERS = 20; % The number of time-keepers in the simulation
+DISCRETE_TIME = 1; % Parameter for if time is discretized
 
 POPULATION = 1000;  % Number of people
-NUM_NEIGHBOURS = 800; % No. of neighbours to interact with. 'ALL' is valid
+NUM_NEIGHBOURS = 10; % No. of neighbours to interact with. 'ALL' is valid
+NEIGHBOUR_METHOD = 2; % Possible values are 1->original, 2->'N' overlapping
+                      %  and 3->'N' non-overlapping
+
 CORRECT_TIME = 20;  % Correct time of the simulation
 DEVIATION_TIME = 5; % Std. Dev. of time in population
 NORMAL_DISTRIBUTION = 1; % Choose if normal distribution of noise
@@ -65,7 +68,7 @@ for i = 1:SIMULATION_TIME
         subplot(2,1,2);
         bar(unique(people),histc(people, unique(people)));
         xlim([CORRECT_TIME-DEVIATION_TIME CORRECT_TIME+DEVIATION_TIME]);
-        drawnow; pause(0.1);
+        drawnow;
     end
     
     [sorted, ix] = sort(people);
@@ -82,12 +85,27 @@ for i = 1:SIMULATION_TIME
         else
             last = p + NUM_NEIGHBOURS;
         end
-        neighbours = ix(start:last);
+        
+        if TIME_KEEPER == 1 && any(keeper == p)
+            start = p;
+            last = start;
+        end
+
+        if NEIGHBOUR_METHOD == 1 % Time axis neighbours
+            neighbours = people(ix(start:last));
+            nposition = ix(p);
+        elseif NEIGHBOUR_METHOD == 2 % Neighbours on the position axis
+            neighbours = people(start:last);
+            nposition = p;
+        else % NEIGHBOUR_METHOD == 3. Neighbours don't overlap
+            neighbours = people(start:last); % not implemented yet
+            nposition = p;
+        end
         
         if DISCRETE_TIME == 1
-            npeople(ix(p)) = round(mean(people(neighbours)));
+            npeople(nposition) = round(mean(neighbours));
         else
-            npeople(ix(p)) = mean(people(neighbours));
+            npeople(nposition) = mean(neighbours);
         end
     end
     

@@ -13,14 +13,14 @@ t = 0:dT:T; % Array of times that the simulation is to run for
 reruns = 1;
 fps = 1/dT;
 frames = moviein(size(t,2));
-SAVE_MOVIE = 1;
+SAVE_MOVIE = 0;
 
 % Setup the model parameters
 POPULATION = 50; % Number of birds to simulate
 NOISE = 0; % Magnitude of Noise
 SPEED = 5; % Magnitude of the velocity
 FIELD = 50; % Size of the arena
-RADIUS = 10; % Field of interaction
+RADIUS = 20; % Field of interaction
 
 % Initialize the birds
 theta = rand(1,POPULATION)*2*pi;

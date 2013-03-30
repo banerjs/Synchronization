@@ -9,6 +9,7 @@ TIME_KEEPER = 1; % 0->there is no time-keeper, 1->there are time-keepers
 MAX_NUM_KEEPERS = 100; % Number of conductors in the arena
 UPDATE_TIME = 0; % Time updates during model?
 UPDATE_NOISE = 1; % Are the updates noisy?
+DISCRETE_TIME = 1; % Flag to discretize time
 
 MAX_SQRT_POP = 100; % Give dimensions for the arena
 RADIUS = 1; % Radius of people to receive updates from
@@ -19,7 +20,7 @@ DEVIATION_UPDATE_TIME = 0.5; % Deviation in the update time for the sim
 NORMAL_DISTRIBUTION = 1; % Is the noise a normal distribution?
 
 CHANGE_FUNC = {@(x,y) ([mean([x,y]), mean([x,y])]); % Normal interaction
-               @(time,y) ([time, time]);           % Timer interaction
+               @(time,y) ([time, time]);            % Timer interaction
                @(x,y) (round(mean([x,y])*[1,1]))};  % Discretized interact
 INDEX_FUNC = @(x) ((x+abs(x))/2); % Helps with indexing the array
 
@@ -28,7 +29,7 @@ SHOW_RESULT = 1; % Show the result or save the result?
 
 %% Create the master loop(s) for getting the results
 THRESHOLD_DEVIATION = 0.01; % Threshold value of std. dev. break on
-NUM_TRIALS = 50; % Number of trials per parameter
+NUM_TRIALS = 10; % Number of trials per parameter
 SQRT_POP = MAX_SQRT_POP; % Set the other parameter
 POPULATION = SQRT_POP * SQRT_POP;
 tests = 0:20:MAX_NUM_KEEPERS; % Create the tests to run
@@ -66,20 +67,14 @@ for NUM_KEEPERS = tests
                 break;
             end
             
+            % Create a parallel matrix of people
+            npeople = people;
+            
             % Update the times for all the people based on avg of neighbours
             for j = 1:size(people,1)
                 for k = 1:size(people,2)
                     if TIME_KEEPER == 1 && any(all(repmat([j,k],size(keeper,1),1)==keeper, 2))
                         continue;
-                    end
-
-                    % Update the time if that is happening
-                    if UPDATE_TIME == 1 && UPDATE_NOISE == 1
-                        if NORMAL_DISTRIBUTION == 1
-                            people(j,k) = people(j,k) + DEVIATION_UPDATE_TIME.*randn();
-                        else
-                            people(j,k) = people(j,k) + (rand().*DEVIATION_UPDATE_TIME) - DEVIATION_UPDATE_TIME;
-                        end
                     end
 
                     % Generate the neighbours
@@ -101,20 +96,30 @@ for NUM_KEEPERS = tests
                         rows = rows-RADIUS+SQRT_POP-k;
                         rend = SQRT_POP;
                     end
-                    neighbours = people(rstart:rend,cstart:cend);
+                    neighbours = npeople(rstart:rend,cstart:cend);
 
                     % Update the time at location
-                    if DISCRETE_TIME == 1
-                        people(j,k) = round(mean(neighbours(:)));
-                    else
-                        people(j,k) = mean(neighbours(:));
-                    end
+                    people(j,k) = mean(neighbours(:));
                 end
             end
             % endfor loop over people
 
             if UPDATE_TIME == 1
                 people = people+CORRECT_UPDATE_TIME;
+
+                % Add in noise as required
+                if UPDATE_NOISE == 1
+                    if NORMAL_DISTRIBUTION == 1
+                        people = people + DEVIATION_UPDATE_TIME.*randn(size(people));
+                    else
+                        people = people + (rand(size(people)).*DEVIATION_UPDATE_TIME) - DEVIATION_UPDATE_TIME;
+                    end
+                end
+            end
+
+            % If only discrete values are allowed
+            if DISCRETE_TIME == 1
+                people = round(people);
             end
         end
         % endfor simulation of situation
