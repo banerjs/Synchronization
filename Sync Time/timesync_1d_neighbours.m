@@ -56,10 +56,13 @@ ymax = 25; % MAX and MIN for the axes
 ymin = 15;
 
 %% Simulation of setup
+npeople = people + 1;
 for i = 1:SIMULATION_TIME
-    if BREAK_ON_DEVIATION == 1 && std(people) < THRESHOLD_DEVIATION
-        break;
-    end
+%    if BREAK_ON_DEVIATION == 1 %&& npeople == people
+%        break;
+%    end
+    
+    npeople = people;
     
     if SHOW_SIMULATION == 1
         subplot(2,1,1);
@@ -114,6 +117,7 @@ end
 % endfor
 
 if SHOW_RESULTS == 1
+    disp(strcat('Number of steps = ', num2str(i)));
     subplot(2,1,1);
     plot(1:POPULATION, people, 1:POPULATION, CORRECT_TIME);
     axis([0, POPULATION, ymin, ymax]);

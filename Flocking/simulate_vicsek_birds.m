@@ -16,7 +16,7 @@ frames = moviein(size(t,2));
 SAVE_MOVIE = 0;
 
 % Setup the model parameters
-POPULATION = 50; % Number of birds to simulate
+POPULATION = 400; % Number of birds to simulate
 NOISE = 0; % Magnitude of Noise
 SPEED = 5; % Magnitude of the velocity
 FIELD = 50; % Size of the arena

@@ -100,7 +100,7 @@ for i = 1:SIMULATION_TIME
         end
         text(SQRT_POP/2, SQRT_POP/8, strcat('Mean = ', num2str(mean(people(:))), ', Variance = ', num2str(var(people(:)))), ...
             'BackgroundColor', [1 1 1]);
-        frames(:,i) = getframe;
+        frames(:,i) = getframe; pause(5);
     end
     
     % Create a parallel matrix of people

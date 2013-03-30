@@ -7,10 +7,10 @@ if isempty(juggler_simulated) || juggler_simulated == 0
     c_x = 0.3;
     c_y = 0.1;
     c_E = 1;
-    c_amp = 5;
+    c_amp = 0;
     c_freq = 2.4;
     ANALYZE_FREQ = 1;
-    SAMPLE_FREQ = 30;
+    SAMPLE_FREQ = 0;
     juggler_simulated = 0;
 end
 

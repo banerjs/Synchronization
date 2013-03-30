@@ -16,10 +16,10 @@ frames = moviein(size(t,2));
 SAVE_MOVIE = 0;
 
 % Setup the model parameters
-POPULATION = 50; % Number of birds to simulate
+POPULATION = 400; % Number of birds to simulate
 SPEED = 5; % Magnitude of the velocity
 FIELD = 50; % Size of the arena
-RADIUS = 5; % Field of interaction
+RADIUS = 20; % Field of interaction
 SWIDTH = 2; % Width of swath to consider
 
 % Initialize the birds
