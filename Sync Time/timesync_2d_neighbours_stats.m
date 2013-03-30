@@ -164,7 +164,7 @@ end
 
 %% Save the computations done
 save(strcat('NeighbouredRadius',num2str(RADIUS),'_KeeperMode',num2str(KEEPERS_MODE),'.mat'));
-if SHOW_RESULT
+if SHOW_RESULT == 1
     plot(tests.^2, buckets);
     axis([0 POPULATION 0 SIMULATION_TIME]);
     title('Population vs. Simulation Time');
