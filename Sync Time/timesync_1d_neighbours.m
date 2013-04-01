@@ -10,7 +10,7 @@ NUM_KEEPERS = 20; % The number of time-keepers in the simulation
 DISCRETE_TIME = 1; % Parameter for if time is discretized
 
 POPULATION = 1000;  % Number of people
-NUM_NEIGHBOURS = 10; % No. of neighbours to interact with. 'ALL' is valid
+NUM_NEIGHBOURS = 72; % No. of neighbours to interact with. 'ALL' is valid
 NEIGHBOUR_METHOD = 2; % Possible values are 1->original, 2->'N' overlapping
                       %  and 3->'N' non-overlapping
 
@@ -56,14 +56,12 @@ ymax = 25; % MAX and MIN for the axes
 ymin = 15;
 
 %% Simulation of setup
-npeople = people + 1;
+oldpeople = people + 1;
 for i = 1:SIMULATION_TIME
-%    if BREAK_ON_DEVIATION == 1 %&& npeople == people
-%        break;
-%    end
-    
-    npeople = people;
-    
+    if all(BREAK_ON_DEVIATION == 1 & oldpeople == people)
+       break;
+    end
+       
     if SHOW_SIMULATION == 1
         subplot(2,1,1);
         plot(1:POPULATION, people, 1:POPULATION, CORRECT_TIME);
@@ -112,6 +110,7 @@ for i = 1:SIMULATION_TIME
         end
     end
     
+    oldpeople = people;
     people = npeople;
 end
 % endfor
