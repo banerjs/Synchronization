@@ -33,13 +33,14 @@ modulo = @(x,n) (x - n*floor(x/n));
 for i = 1:size(t,2)
     % Plot the positions of the birds
     plot(positions(1,:), positions(2,:), '.');
-    axis([0 FIELD 0 FIELD]);
+    %axis([0 FIELD 0 FIELD]);
     title(['N = ', num2str(POPULATION), ', R = ', num2str(RADIUS)]);
     frames(:,i) = getframe;
     
     % Update the heading and position of all the birds
-    positions(1,:) = modulo(positions(1,:)+SPEED*dT.*cos(theta), FIELD);
-    positions(2,:) = modulo(positions(2,:)+SPEED*dT.*sin(theta), FIELD);
+    positions(1,:) = positions(1,:)+SPEED*dT.*cos(theta);
+    %positions(2,:) = modulo(positions(2,:)+SPEED*dT.*sin(theta), FIELD);
+    positions(2,:) = positions(2,:)+SPEED*dT.*sin(theta);
     x = positions(1,:);
     y = positions(2,:);
     
@@ -64,7 +65,7 @@ end
 % Plot the birds
 figure;
 plot(positions(1,:), positions(2,:), '.');
-axis([0 FIELD 0 FIELD]);
+%axis([0 FIELD 0 FIELD]);
 title(['Final Position, N = ', num2str(POPULATION)]);
 
 % Save the movie if asked for

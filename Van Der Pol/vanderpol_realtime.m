@@ -2,14 +2,14 @@
 % This is the simulation for the Van der Pol in real time
 
 % Set the timing parameters
-T = 300; % Set the total time for the simulation
+T = 50; % Set the total time for the simulation
 dT = 0.1; % Timestep value
 tspan = [0, T]; % Set the span for the simulation
 
 % Set the initial conditions
 NUM_PARTICLES = 10; % Number of particles
-VARIATION = 5; % Variation in the initial states between particles
-MEAN_POS = 3; % Mean position
+VARIATION = 3; % Variation in the initial states between particles
+MEAN_POS = 0.5; % Mean position
 E = 1; % Epsilon
 init_states = MEAN_POS + VARIATION.*rand(2,NUM_PARTICLES);
 times = cell(1,NUM_PARTICLES);
@@ -36,7 +36,7 @@ for i = 1:size(Time,2)
     if mod(i-1,FRAME_DIVIDE) == 0 % If the frame is to be shown
         for j = 1:NUM_PARTICLES
             plot(States{j}(1:i,1), States{j}(1:i,2), 'color', CM(j,:));
-            axis([-10 10 -10 10]);
+            axis([-3 3 -3 3]);
             hold on;
         end
         for j = 1:NUM_PARTICLES

@@ -1,4 +1,4 @@
-%%TIMESYNC_CONTINUOUS_STATS.m
+%%TIMESYNC_2D_FOLLOW_LEADER_STATS.m
 % This is a 2-D simulation of the collection of statistics of running
 % timesync_continuous.
 
@@ -28,7 +28,7 @@ SIMULATION_TIME = 200; % Number of timesteps to be simulated for
 SHOW_RESULT = 0; % Show the result or save the result?
 
 %% Create the master loop(s) for getting the results
-NUM_TRIALS = 10; % Number of trials per parameter
+NUM_TRIALS = 30; % Number of trials per parameter
 SQRT_POP = MAX_SQRT_POP; % Set the other parameter
 POPULATION = SQRT_POP * SQRT_POP;
 tests = [0, 1, 2, 5, 10, 12, 16, 18, 20]; % Create the tests to run
@@ -38,7 +38,7 @@ results = zeros([SQRT_POP, SQRT_POP, size(tests,2)]); % Create buckets for final
 %% Simulate the results and gather data
 disp(strcat('Beginning simulation. Time Keeper Time has been set to=', num2str(TIME_KEEPER_TIME)));
 
-for RADIUS = [5, 10, 15, 20] % Radius of people to receive updates from
+for RADIUS = [1, 2, 5, 10] % Radius of people to receive updates from
 disp(strcat('Checking radius=',num2str(RADIUS)));
 
     for KEEPERS_MODE = 0:2 % 0->Random, 1->Equidistant, 2->Center cluster
@@ -123,6 +123,8 @@ disp(strcat('Checking radius=',num2str(RADIUS)));
 
                 % Simulation of Setup
                 npeople = people - 1;
+                num_keepers = NUM_KEEPERS;
+                
                 for i = 1:SIMULATION_TIME
                     % Check for a break from the simulation time
                     if npeople == people
@@ -131,11 +133,12 @@ disp(strcat('Checking radius=',num2str(RADIUS)));
 
                     % Create a parallel matrix of people
                     npeople = people;
+                    nkeeper = keeper;
 
                     % Update the times for all the people based on avg of neighbours
                     for j = 1:size(people,1)
                         for k = 1:size(people,2)
-                            if TIME_KEEPER == 1 && any(all(repmat([j,k],size(keeper,1),1)==keeper, 2))
+                            if TIME_KEEPER == 1 && any(all(repmat([j,k],size(nkeeper,1),1)==nkeeper, 2))
                                 continue;
                             end
 
@@ -158,10 +161,19 @@ disp(strcat('Checking radius=',num2str(RADIUS)));
                                 rows = rows-RADIUS+SQRT_POP-k;
                                 rend = SQRT_POP;
                             end
+                            [nx, ny] = meshgrid(rstart:rend,cstart:cend);
+                            npositions = [nx(:), ny(:)];
                             neighbours = npeople(rstart:rend,cstart:cend);
 
                             % Update the time at location
-                            people(j,k) = mean(neighbours(:));
+                            keep = intersect(nkeeper, npositions, 'rows');
+                            if keep
+                                people(j,k) = TIME_KEEPER_TIME;
+                                num_keepers = num_keepers + 1;
+                                keeper(num_keepers,:) = [j,k];
+                            else
+                                people(j,k) = mean(neighbours(:));
+                            end
                         end
                     end
                     % endfor loop over people
@@ -184,7 +196,7 @@ disp(strcat('Checking radius=',num2str(RADIUS)));
         end
 
         %% Save the computations done
-        save(strcat('Keeper2Time',num2str(TIME_KEEPER_TIME),'_Radius',num2str(RADIUS),'_KeeperMode',num2str(KEEPERS_MODE),'.mat'));
+        save(strcat('ForceTime',num2str(TIME_KEEPER_TIME),'_Radius',num2str(RADIUS),'_KeeperMode',num2str(KEEPERS_MODE),'.mat'));
     end
 end
 exit
