@@ -19,17 +19,34 @@ SAVE_MOVIE = 0;
 POPULATION = 400; % Number of birds to simulate
 SPEED = 5; % Magnitude of the velocity
 FIELD = 50; % Size of the arena
-RADIUS = 20; % Field of interaction
+RADIUS = 15; % Field of interaction
 SWIDTH = 2; % Width of swath to consider
+NUM_LEADERS = 1; % Number of leaders in the flock
+LEADER_HEADING = 0; % Heading of the leaders in the flock
+FORCE_LEADER = 1; % Is the leader forceful?
 
 % Initialize the birds
 theta = rand(1,POPULATION)*pi;
 positions = rand(2,POPULATION).*FIELD;
 
+% Initialize the leader birds
+leaders = randperm(POPULATION);
+if FORCE_LEADER == 1
+    l = leaders(1:NUM_LEADERS);
+    theta(l) = LEADER_HEADING;
+    leaders = zeros(POPULATION,1);
+    leaders(1:NUM_LEADERS) = l;
+else
+    leaders = leaders(1:NUM_LEADERS);
+    theta(leaders) = LEADER_HEADING;
+end
+
 % Helper functions
 modulo = @(x,n) (x - n*floor(x/n));
 
 % For loop to do the simulation
+num_leaders = NUM_LEADERS;
+
 for i = 1:size(t,2)
     % Plot the positions of the birds
     plot(positions(1,:), positions(2,:), '.');
@@ -38,6 +55,7 @@ for i = 1:size(t,2)
     frames(:,i) = getframe;
     
     % Update the heading and position of all the birds
+    %positions(1,:) = modulo(positions(1,:)+SPEED*dT.*cos(theta), FIELD);
     positions(1,:) = positions(1,:)+SPEED*dT.*cos(theta);
     %positions(2,:) = modulo(positions(2,:)+SPEED*dT.*sin(theta), FIELD);
     positions(2,:) = positions(2,:)+SPEED*dT.*sin(theta);
@@ -48,17 +66,28 @@ for i = 1:size(t,2)
         if RADIUS < 1
             break;
         end
+        if any(j == leaders) % Do not update the leaders
+            continue;
+        end
         offset = y(j) - tan(theta(j))*x(j);
         neighbours = positions(:, ((abs(y-y(j)) < RADIUS) & (abs(x-x(j)) < RADIUS)));
-        lneighbours = neighbours(2,:) < tan(theta(j))*neighbours(1,:);
-        rneighbours = neighbours(2,:) > tan(theta(j))*neighbours(1,:);
+        lneighbours = neighbours(2,:) < tan(theta(j))*neighbours(1,:)+offset;
+        rneighbours = neighbours(2,:) > tan(theta(j))*neighbours(1,:)+offset;
         
-        theta(j) = modulo(theta(j) + (sum(rneighbours)-sum(lneighbours))*dT/sum(lneighbours | rneighbours), 2*pi);
+        if NUM_LEADERS > 0
+            if any(FORCE_LEADER == 1 & intersect(neighbours',positions(:, leaders(1:num_leaders))', 'rows'))
+                theta(j) = LEADER_HEADING;
+                num_leaders = num_leaders+1;
+                leaders(num_leaders) = j;
+            end
+        elseif sum(lneighbours | rneighbours) ~= 0
+            theta(j) = modulo(theta(j) + (sum(rneighbours)-sum(lneighbours))/sum(lneighbours | rneighbours), 2*pi);
+        end
     end
     
     % Apply confinement rules
-    % need = (positions(1,:)<=0 | positions(1,:)>=FIELD);
-    % theta(need) = pi - theta(need);
+    %need = (positions(1,:)<=0 | positions(1,:)>=FIELD);
+    %theta(need) = pi - theta(need);
 end
 % endfor
 

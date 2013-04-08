@@ -5,7 +5,7 @@
 clear all; clc;
 
 % Set the timing parameters
-T = 100; % Set the total time for the simulation
+T = 300; % Set the total time for the simulation
 dT = 0.1; % Timestep value
 tspan = [0, T]; % Set the span for the simulation
 
@@ -25,27 +25,31 @@ states = interp1(t, s, tspan(1):dT:tspan(2), 'spline'); % Interpolated states
 
 % Do the simulation
 dcount = 0; % Check timestep to start delayed transaction
-diter = 1; % Number of simulators that have started counting
+diter = 0; % Number of simulators that have started counting
 scount = zeros(NUM_TRIES,1); % Simulation time of all the followers
 
 mdist = inf;
 midx = 0;
 
 for i = 1:size(states,1)
-    plot(states(1:i,1), states(1:i,2), 'k', states(i,1), states(i,2), 'ro');
-    hold on;
-    for j = 1:diter-1
-        if midx > 0 & j == midx
-            plot(states(ceil(scount(j)/dT)+1,1), states(ceil(scount(j)/dT)+1,2), 'g.');
-            hold on;
-        else
-            plot(states(ceil(scount(j)/dT)+1,1), states(ceil(scount(j)/dT)+1,2), 'b^');
-            hold on;
+    if mod(i,10) == 0
+        plot(states(1:i,1), states(1:i,2), 'k', states(i,1), states(i,2), 'ro');
+        axis([-3 3 -3 3]);
+        hold on;
+        for j = 1:diter-1
+            if midx > 0 && j == midx
+                plot(states(ceil(scount(j)/dT)+1,1), states(ceil(scount(j)/dT)+1,2), 'go');
+                hold on;
+            else
+                plot(states(ceil(scount(j)/dT)+1,1), states(ceil(scount(j)/dT)+1,2), 'b^');
+                hold on;
+            end
         end
+        hold off;
+        title(['Minimum at ', num2str(midx)]);
+        drawnow; pause(0.1);
     end
-    hold off;
-    drawnow; pause(0.1);
-    if dcount >= delaytime % Start a new simulator if available
+    if dcount >= delaytime && diter < NUM_TRIES % Start a new simulator if available
         diter = diter + 1; % Increase the number of simulators that have started
         dcount = 0;
     end
@@ -53,7 +57,7 @@ for i = 1:size(states,1)
     if any(ceil(scount) == simtime)
         if norm(states(simtime/dT+1,:) - states(i,:)) < mdist
             mdist = norm(states(simtime/dT+1,:) - states(i,:));
-            midx = find(scount == simtime);
+            midx = find(ceil(scount) == simtime);
         end
     end
     
