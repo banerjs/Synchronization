@@ -19,14 +19,14 @@ SAVE_MOVIE = 0;
 POPULATION = 400; % Number of birds to simulate
 SPEED = 5; % Magnitude of the velocity
 FIELD = 50; % Size of the arena
-RADIUS = 15; % Field of interaction
+RADIUS = 100; % Field of interaction
 SWIDTH = 2; % Width of swath to consider
-NUM_LEADERS = 1; % Number of leaders in the flock
+NUM_LEADERS = 0; % Number of leaders in the flock
 LEADER_HEADING = 0; % Heading of the leaders in the flock
-FORCE_LEADER = 1; % Is the leader forceful?
+FORCE_LEADER = 0; % Is the leader forceful?
 
 % Initialize the birds
-theta = rand(1,POPULATION)*pi;
+theta = randn(1,POPULATION)*10;
 positions = rand(2,POPULATION).*FIELD;
 
 % Initialize the leader birds
@@ -50,7 +50,7 @@ num_leaders = NUM_LEADERS;
 for i = 1:size(t,2)
     % Plot the positions of the birds
     plot(positions(1,:), positions(2,:), '.');
-    %axis([0 FIELD 0 FIELD]);
+    axis([-FIELD*10 FIELD*10 -10*FIELD FIELD*10]);
     title(['N = ', num2str(POPULATION), ', R = ', num2str(RADIUS)]);
     frames(:,i) = getframe;
     
@@ -81,7 +81,7 @@ for i = 1:size(t,2)
                 leaders(num_leaders) = j;
             end
         elseif sum(lneighbours | rneighbours) ~= 0
-            theta(j) = modulo(theta(j) + (sum(rneighbours)-sum(lneighbours))/sum(lneighbours | rneighbours), 2*pi);
+            theta(j) = modulo(theta(j) + ((sum(lneighbours)-sum(rneighbours))/sum(lneighbours | rneighbours))*pi/2, 2*pi);
         end
     end
     
@@ -94,7 +94,7 @@ end
 % Plot the birds
 figure;
 plot(positions(1,:), positions(2,:), '.');
-%axis([0 FIELD 0 FIELD]);
+axis([-FIELD*10 FIELD*10 -10*FIELD FIELD*10]);
 title(['Final Position, N = ', num2str(POPULATION)]);
 
 % Save the movie if asked for

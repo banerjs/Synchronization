@@ -1,6 +1,5 @@
-%%SIMULATE_VICSEK_BIRDS.m
-% This script is to simulate self propelled particles in a manner
-% described in the Vicsek paper
+%%SIMULATE_NUCLEAR_BIRDS.m
+% Simulate birds following the nuclear laws of separation
 
 clear all; clc;
 
@@ -16,11 +15,11 @@ frames = moviein(size(t,2));
 SAVE_MOVIE = 0;
 
 % Setup the model parameters
-POPULATION = 400; % Number of birds to simulate
+POPULATION = 100; % Number of birds to simulate
 NOISE = 0; % Magnitude of Noise
 SPEED = 5; % Magnitude of the velocity
 FIELD = 50; % Size of the arena
-RADIUS = 5; % Field of interaction
+RADIUS = 10; % Field of interaction
 
 % Initialize the birds
 theta = rand(1,POPULATION)*2*pi;
@@ -33,31 +32,23 @@ modulo = @(x,n) (x - n*floor(x/n));
 for i = 1:size(t,2)
     % Plot the positions of the birds
     plot(positions(1,:), positions(2,:), '.');
-    axis([0 FIELD 0 FIELD]);
+    %axis([0 FIELD 0 FIELD]);
     title(['N = ', num2str(POPULATION), ', R = ', num2str(RADIUS)]);
     frames(:,i) = getframe;
     
     % Update the heading and position of all the birds
-    %positions(1,:) = positions(1,:)+SPEED*dT.*cos(theta);
-    positions(1,:) = modulo(positions(1,:)+SPEED*dT.*cos(theta), FIELD);
-    %positions(2,:) = positions(2,:)+SPEED*dT.*sin(theta);
-    positions(2,:) = modulo(positions(2,:)+SPEED*dT.*sin(theta), FIELD);
+    %positions(1,:) = mod(positions(1,:)+SPEED*dT.*cos(theta),FIELD);
+    %positions(2,:) = mod(positions(2,:)+SPEED*dT.*sin(theta),FIELD);
+    positions(1,:) = positions(1,:)+SPEED*dT.*cos(theta);
+    positions(2,:) = positions(2,:)+SPEED*dT.*sin(theta);
 
     for j = 1:POPULATION
         neighbours = ((abs(positions(1,:)-positions(1,j)) < RADIUS) & (abs(positions(2,:)-positions(2,j)) < RADIUS));
-        %if positions(:,j) >= 0 & positions(:,j) <= FIELD
-        theta(j) = modulo(mean(theta(neighbours)) + NOISE*randn(), 2*pi);
-        %end
+        %theta(j) = modulo(mean(theta(neighbours)) + NOISE*randn(), 2*pi);
+        theta(j) = NuclearForces(positions(:,j), neighbours, positions, RADIUS, theta(j));
     end
     
-    % Apply confinement rules
-    %need1 = (positions(1,:)<=0 | positions(1,:)>=FIELD);
-    %need2 = (positions(2,:)<=0 | positions(2,:)>=FIELD);
-    %need = need1 & need2;
-    %%theta(need1) = pi - theta(need1);
-    %theta(need1 & ~need) = pi - theta(need1 & ~need);
-    %theta(need2 & ~need) = 3*pi/2 - theta(need2 & ~need);
-    %theta(need) = pi + theta(need);
+    %break;
 end
 % endfor
 

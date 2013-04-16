@@ -7,12 +7,12 @@ TIME_KEEPER = 1; % 0->there is no time-keeper, 1->there are time-keepers
 NUM_KEEPERS = 1; % Number of conductors in the arena
 KEEPERS_MODE = 0; % 0->Random, 1->Equidistant, 2->Center cluster
 UPDATE_TIME = 0; % Time updates during model?
-UPDATE_NOISE = 1; % Are the updates noisy?
+UPDATE_NOISE = 0; % Are the updates noisy?
 DISCRETE_TIME = 1; % Parameter for discretized time only
 
-SQRT_POP = 100; % Give dimensions for the arena
+SQRT_POP = 30; % Give dimensions for the arena
 POPULATION = SQRT_POP * SQRT_POP; % Number of people in this experiment
-RADIUS = 10; % Radius of people to receive updates from
+RADIUS = 1; % Radius of people to receive updates from
 CORRECT_INIT_TIME = 20; % Correct initial time for the simulation
 TIME_KEEPER_TIME = 17; % Time that all the time-keepers share
 CORRECT_UPDATE_TIME = 1; % Correct update of time
