@@ -5,12 +5,12 @@ clear all; clc;
 %% Set up the parameters of the simulation
 TIME_KEEPER = 1; % 0->there is no time-keeper, 1->there are time-keepers
 NUM_KEEPERS = 1; % Number of conductors in the arena
-KEEPERS_MODE = 0; % 0->Random, 1->Equidistant, 2->Center cluster
+KEEPERS_MODE = 1; % 0->Random, 1->Equidistant, 2->Center cluster
 UPDATE_TIME = 0; % Time updates during model?
 UPDATE_NOISE = 0; % Are the updates noisy?
 DISCRETE_TIME = 1; % Parameter for discretized time only
 
-SQRT_POP = 30; % Give dimensions for the arena
+SQRT_POP = 100; % Give dimensions for the arena
 POPULATION = SQRT_POP * SQRT_POP; % Number of people in this experiment
 RADIUS = 1; % Radius of people to receive updates from
 CORRECT_INIT_TIME = 20; % Correct initial time for the simulation
@@ -39,47 +39,52 @@ if DISCRETE_TIME == 1 % Discretize time if required
 end
 
 if TIME_KEEPER == 1
-    keeper = zeros(POPULATION,2);
+    keeper = zeros(size(people));
+    keeper_state = 1;
     for i = 1:NUM_KEEPERS
         if KEEPERS_MODE == 0
-            keeper(i,:) = [randi(SQRT_POP), randi(SQRT_POP)]; % Set a time-keeper
+            pos = [randi(SQRT_POP), randi(SQRT_POP)];
+            keeper(pos(1), pos(2)) = keeper_state; % Set a time-keeper
         elseif KEEPERS_MODE == 1
             if NUM_KEEPERS == 1 % Hard code solution for 1
-                keeper(i,:) = floor([SQRT_POP/2, SQRT_POP/2]);
+                pos = floor([SQRT_POP/2, SQRT_POP/2]);
+                keeper(pos(1), pos(2)) = keeper_state;
             elseif NUM_KEEPERS == 5 % Hard code solution for 5
                 if i == 1
-                    keeper(i,:) = floor([SQRT_POP/2, SQRT_POP/6]);
+                    pos = floor([SQRT_POP/2, SQRT_POP/6]);
                 elseif i == 2 || i == 3
-                    keeper(i,:) = floor([SQRT_POP/2+(i-2.5)*2*SQRT_POP/3, SQRT_POP/2]);
+                    pos = floor([SQRT_POP/2+(i-2.5)*2*SQRT_POP/3, SQRT_POP/2]);
                 else % i == 4 || i == 5
-                    keeper(i,:) = floor([SQRT_POP/2+(i-4.5)*2*SQRT_POP/6, 5*SQRT_POP/6]);
+                    pos = floor([SQRT_POP/2+(i-4.5)*2*SQRT_POP/6, 5*SQRT_POP/6]);
                 end
+                keeper(pos(1),pos(2)) = keeper_state;
             elseif mod(NUM_KEEPERS,2) == 0 % Write solution for even num
                 if mod(NUM_KEEPERS, 20) == 0 % Check for highest divisibilty
                     kx = mod(i,20);
                     ky = floor((i-1)/20);
-                    keeper(i,:) = floor([SQRT_POP/2+(kx-9.5)*SQRT_POP/20, (SQRT_POP*20/NUM_KEEPERS)*ky + SQRT_POP*10/NUM_KEEPERS]);
+                    pos = floor([SQRT_POP/2+(kx-9.5)*SQRT_POP/20, (SQRT_POP*20/NUM_KEEPERS)*ky + SQRT_POP*10/NUM_KEEPERS]);
                 elseif mod(NUM_KEEPERS, 16) == 0 % Check for highest divisibilty
                     kx = mod(i,16);
                     ky = floor((i-1)/16);
-                    keeper(i,:) = floor([SQRT_POP/2+(kx-7.5)*SQRT_POP/16, (SQRT_POP*16/NUM_KEEPERS)*ky + SQRT_POP*8/NUM_KEEPERS]);
+                    pos = floor([SQRT_POP/2+(kx-7.5)*SQRT_POP/16, (SQRT_POP*16/NUM_KEEPERS)*ky + SQRT_POP*8/NUM_KEEPERS]);
                 elseif mod(NUM_KEEPERS, 10) == 0 % Check for highest divisibilty
                     kx = mod(i,10);
                     ky = floor((i-1)/10);
-                    keeper(i,:) = floor([SQRT_POP/2+(kx-4.5)*SQRT_POP/10, (SQRT_POP*10/NUM_KEEPERS)*ky + SQRT_POP*5/NUM_KEEPERS]);
+                    pos = floor([SQRT_POP/2+(kx-4.5)*SQRT_POP/10, (SQRT_POP*10/NUM_KEEPERS)*ky + SQRT_POP*5/NUM_KEEPERS]);
                 elseif mod(NUM_KEEPERS, 8) == 0 % Check for highest divisibilty
                     kx = mod(i,8);
                     ky = floor((i-1)/8);
-                    keeper(i,:) = floor([SQRT_POP/2+(kx-3.5)*SQRT_POP/8, (SQRT_POP*8/NUM_KEEPERS)*ky + SQRT_POP*4/NUM_KEEPERS]);
+                    pos = floor([SQRT_POP/2+(kx-3.5)*SQRT_POP/8, (SQRT_POP*8/NUM_KEEPERS)*ky + SQRT_POP*4/NUM_KEEPERS]);
                 elseif mod(NUM_KEEPERS,4) == 0
                     kx = mod(i,4);
                     ky = floor((i-1)/4);
-                    keeper(i,:) = floor([SQRT_POP/2+(kx-1.5)*SQRT_POP/4, (SQRT_POP*4/NUM_KEEPERS)*ky + SQRT_POP*2/NUM_KEEPERS]);
+                    pos = floor([SQRT_POP/2+(kx-1.5)*SQRT_POP/4, (SQRT_POP*4/NUM_KEEPERS)*ky + SQRT_POP*2/NUM_KEEPERS]);
                 else % mod(NUM_KEEPERS,2) == 0
                     kx = mod(i,2);
                     ky = floor((i-1)/2);
-                    keeper(i,:) = floor([SQRT_POP/2+(kx-0.5)*SQRT_POP/2, (SQRT_POP*2/NUM_KEEPERS)*ky + SQRT_POP/NUM_KEEPERS]);
+                    pos = floor([SQRT_POP/2+(kx-0.5)*SQRT_POP/2, (SQRT_POP*2/NUM_KEEPERS)*ky + SQRT_POP/NUM_KEEPERS]);
                 end
+                keeper(pos(1),pos(2)) = keeper_state;
             else % Odd number but not 1 or 5
                 disp('Invalid number of keepers. Not trained for this!');
                 return;
@@ -87,9 +92,10 @@ if TIME_KEEPER == 1
         elseif KEEPERS_MODE == 2
             kd = floor(sqrt(NUM_KEEPERS));
             ks = floor([SQRT_POP/2-kd, SQRT_POP/2-kd]);
-            keeper(i,:) = ks + [mod(i,kd), floor(i/kd)];
+            pos = ks + [mod(i,kd), floor(i/kd)];
+            keeper(pos(1), pos(2)) = keeper_state;
         end
-        people(keeper(i,1),keeper(i,2)) = TIME_KEEPER_TIME; % Make person the keeper
+        people(pos(1), pos(2)) = TIME_KEEPER_TIME; % Set the time for the time-keeper
     end
 end
 
@@ -103,7 +109,6 @@ imagesc(people,[CORRECT_INIT_TIME-DEVIATION_INIT_TIME CORRECT_INIT_TIME+DEVIATIO
 drawnow;
 
 npeople = people + 1;
-num_keepers = NUM_KEEPERS;
 
 for i = 1:SIMULATION_TIME
     if all(BREAK_ON_DEVIATION == 1 & npeople == people)
@@ -128,7 +133,7 @@ for i = 1:SIMULATION_TIME
     % Update the times for all the people based on avg of neighbours
     for j = 1:size(people,1)
         for k = 1:size(people,2)
-            if TIME_KEEPER == 1 && any(all(repmat([j,k],size(nkeeper,1),1)==nkeeper, 2))
+            if TIME_KEEPER == 1 && nkeeper(j,k) > 0
                 continue;
             end
                                     
@@ -151,16 +156,13 @@ for i = 1:SIMULATION_TIME
                 rows = rows-RADIUS+SQRT_POP-k;
                 rend = SQRT_POP;
             end
-            [nx, ny] = meshgrid(rstart:rend,cstart:cend);
-            npositions = [nx(:), ny(:)];
             neighbours = npeople(rstart:rend,cstart:cend);
             
             % Update the time at location
-            keep = intersect(nkeeper, npositions, 'rows');
-            if keep
+            keeper_present = max(max(nkeeper(rstart:rend,cstart:cend)));
+            if keeper_present > 0
                 people(j,k) = TIME_KEEPER_TIME;
-                num_keepers = num_keepers + 1;
-                keeper(num_keepers,:) = [j,k];
+                keeper(j,k) = keeper_present+1;
             else
                 people(j,k) = mean(neighbours(:));
             end

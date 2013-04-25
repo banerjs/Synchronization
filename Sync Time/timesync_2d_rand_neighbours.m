@@ -6,7 +6,7 @@ clear all; clc;
 %% Set simulation parameters
 POPULATION = 100; % Number of people in the simulation
 FIELD = 100; % Set a field for POPULATION people
-RADIUS = 1; % Number of surrounding people to consider
+RADIUS = 10; % Number of surrounding people to consider
 
 DISCRETE_TIME = 1; % Parameter for if time is discretized
 CORRECT_TIME = 20; % Correct time for the population
@@ -35,12 +35,12 @@ positions = round(rand(2,POPULATION).*FIELD); % Generate the positions of people
 otimes = times + 1; % Init in order to get at least 1 iteration
 
 for i = 1:SIMULATION_TIME
-%     if all(BREAK_ON_DEVIATION == 1 & otimes == times)
-%        break;
-%    end
-    if BREAK_ON_DEVIATION == 1 && std(times) < THRESHOLD_DEVIATION
-        break;
-    end
+    if all(BREAK_ON_DEVIATION == 1 & otimes == times)
+       break;
+   end
+%     if BREAK_ON_DEVIATION == 1 && std(times) < THRESHOLD_DEVIATION
+%         break;
+%     end
     
     if SHOW_SIMULATION == 1
         subplot(2,1,1);

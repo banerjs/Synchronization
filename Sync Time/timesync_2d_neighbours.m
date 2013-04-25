@@ -5,9 +5,9 @@
 clear all; clc;
 
 %% Set up the parameters of the simulation
-TIME_KEEPER = 1; % 0->there is no time-keeper, 1->there are time-keepers
-NUM_KEEPERS = 1000; % Number of conductors in the arena
-KEEPERS_MODE = 2; % 0->Random, 1->Equidistant, 2->Center cluster
+TIME_KEEPER = 0; % 0->there is no time-keeper, 1->there are time-keepers
+NUM_KEEPERS = 500; % Number of conductors in the arena
+KEEPERS_MODE = 0; % 0->Random, 1->Equidistant, 2->Center cluster
 UPDATE_TIME = 0; % Time updates during model?
 UPDATE_NOISE = 1; % Are the updates noisy?
 DISCRETE_TIME = 1; % Parameter for discretized time only
@@ -97,7 +97,7 @@ end
 
 %% Create the movie
 reruns = 1;
-fps = 5;
+fps = 3;
 frames = moviein(SIMULATION_TIME);
 
 %% Simulation of Setup
