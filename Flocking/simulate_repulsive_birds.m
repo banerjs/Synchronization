@@ -2,7 +2,9 @@
 % This script is to simulate self propelled particles in a manner
 % described in the Vicsek paper
 
-clear all; clc;
+if ~exist('STAT_COLLECTING', 'var') || STAT_COLLECTING == 0
+    clear all; clc;
+end
 
 % Setup timing parameters for the model
 T = 100; % Total time of simulation
@@ -10,18 +12,23 @@ dT = 0.1; % Timestep size
 t = 0:dT:T; % Array of times that the simulation is to run for
 
 % Initialize Movie Parameters
-reruns = 1;
-fps = 1/dT;
-frames = moviein(size(t,2));
-SAVE_MOVIE = 1;
+if ~exist('STAT_COLLECTING', 'var') || STAT_COLLECTING == 0
+    reruns = 1;
+    fps = 1/dT;
+    frames = moviein(size(t,2));
+    SAVE_MOVIE = 0;
+end
 
 % Setup the model parameters
-POPULATION = 50; % Number of birds to simulate
-NOISE = 0; % Magnitude of Noise
-SPEED = 5; % Magnitude of the velocity
-FIELD = 50; % Size of the arena
-ATTRACT_RADIUS = 10; % Field of attraction
-REPULSE_RADIUS = 1; % Field of repulsion
+if ~exist('STAT_COLLECTING', 'var') || STAT_COLLECTING == 0
+    POPULATION = 100; % Number of birds to simulate
+    NOISE = 0; % Magnitude of Noise
+    FIELD = 50; % Size of the arena
+    RADIUS = 2; % Field of interaction
+    REPULSE_RADIUS = 0; % Field of repulsion
+    CONFINE = 2; % Confine the model? 0->No, 1->Toroidal, 2->Reflective
+end
+SPEED = 5;
 
 % Initialize the birds
 theta = rand(1,POPULATION)*2*pi;
@@ -31,18 +38,45 @@ positions = rand(2,POPULATION).*FIELD;
 modulo = @(x,n) (x - n*floor(x/n));
 
 % For loop to do the simulation
+otheta = theta + 1;
+need_x = [];
+need_y = [];
+
 for i = 1:size(t,2)
+    if exist('STAT_COLLECTING', 'var') && STAT_COLLECTING > 0
+        if otheta == theta
+            break;
+        end
+    end
+
     % Plot the positions of the birds
-    plot(positions(1,:), positions(2,:), '.');
-    axis([0 FIELD 0 FIELD]);
-    title(['N = ', num2str(POPULATION), ', R = ', num2str(ATTRACT_RADIUS), ', r = ', num2str(REPULSE_RADIUS)]);
-    frames(:,i) = getframe;
+    if ~exist('STAT_COLLECTING', 'var') || STAT_COLLECTING == 0
+        plot(positions(1,:), positions(2,:), '.');
+        if CONFINE > 0
+            axis([0 FIELD 0 FIELD]);
+        else
+            axis([-10*FIELD 10*FIELD -10*FIELD 10*FIELD])
+        end
+        title(['N = ', num2str(POPULATION), ', R = ', num2str(RADIUS)]);
+        frames(:,i) = getframe;
+    end
+    
+    otheta = theta; % Store the previous heading of everyone
     
     % Update the heading and position of all the birds
-    positions(1,:) = modulo(positions(1,:)+SPEED*dT.*cos(theta), FIELD);
-    positions(2,:) = modulo(positions(2,:)+SPEED*dT.*sin(theta), FIELD);
+    if CONFINE == 0 || CONFINE == 2
+        positions(1,:) = positions(1,:)+SPEED*dT.*cos(theta);
+        positions(2,:) = positions(2,:)+SPEED*dT.*sin(theta);
+    else % CONFINE == 1
+        positions(1,:) = modulo(positions(1,:)+SPEED*dT.*cos(theta), FIELD);
+        positions(2,:) = modulo(positions(2,:)+SPEED*dT.*sin(theta), FIELD);
+    end
 
     for j = 1:POPULATION
+        if RADIUS == 0
+            break;
+        end
+        
         repel_1 = ((((positions(1,:)-positions(1,j)) > 0) & (abs(positions(1,:)-positions(1,j)) < REPULSE_RADIUS)) & ...
                    (((positions(2,:)-positions(2,j)) > 0) & (abs(positions(2,:)-positions(2,j)) < REPULSE_RADIUS)));
         repel_2 = ((((positions(1,:)-positions(1,j)) < 0) & (abs(positions(1,:)-positions(1,j)) < REPULSE_RADIUS)) & ...
@@ -51,21 +85,43 @@ for i = 1:size(t,2)
                    (((positions(2,:)-positions(2,j)) < 0) & (abs(positions(2,:)-positions(2,j)) < REPULSE_RADIUS)));
         repel_4 = ((((positions(1,:)-positions(1,j)) > 0) & (abs(positions(1,:)-positions(1,j)) < REPULSE_RADIUS)) & ...
                    (((positions(2,:)-positions(2,j)) < 0) & (abs(positions(2,:)-positions(2,j)) < REPULSE_RADIUS)));
-        theta(j) = modulo(repulse_function(theta(j), [sum(repel_1), sum(repel_2), sum(repel_3), sum(repel_4)]), 2*pi);
+        repel = RepulseFunction(theta(j), [sum(repel_1), sum(repel_2), sum(repel_3), sum(repel_4)]);
 
-        neighbours = ((abs(positions(1,:)-positions(1,j)) < ATTRACT_RADIUS) & (abs(positions(2,:)-positions(2,j)) < ATTRACT_RADIUS));
-        theta(j) = modulo(mean(theta(neighbours)) + NOISE*randn(), 2*pi);
+        neighbours = ((abs(positions(1,:)-positions(1,j)) < RADIUS) & (abs(positions(2,:)-positions(2,j)) < RADIUS));
+        desired = modulo(mean(otheta(neighbours)) + NOISE*randn(), 2*pi);
+        
+        if REPULSE_RADIUS > 0
+            theta(j) = modulo(desired + (repel-desired)*0.9, 2*pi);
+        else
+            theta(j) = desired;
+        end
     end
+    
+    if CONFINE == 2
+        need_x = abs(positions(1,:)-FIELD/2) > FIELD/2;
+        need_y = abs(positions(2,:)-FIELD/2) > FIELD/2;
+        need_xy = need_x & need_y;
+        
+        theta(need_x) = modulo(pi-otheta(need_x), 2*pi);
+        theta(need_y) = modulo(2*pi-otheta(need_y), 2*pi);
+        theta(need_xy) = modulo(pi+otheta(need_xy), 2*pi);
+    end
+
 end
 % endfor
 
 % Plot the birds
-figure;
-plot(positions(1,:), positions(2,:), '.');
-axis([0 FIELD 0 FIELD]);
-title(['Final Position, N = ', num2str(POPULATION)]);
+if ~exist('STAT_COLLECTING', 'var') || STAT_COLLECTING == 0
+    plot(positions(1,:), positions(2,:), '.');
+    if CONFINE > 0
+        axis([0 FIELD 0 FIELD]);
+    else
+        axis([-10*FIELD 10*FIELD -10*FIELD 10*FIELD])
+    end
+    title(['Final Position, N = ', num2str(POPULATION)]);
 
-% Save the movie
-if SAVE_MOVIE == 1
-    movie2avi(frames, strcat('RepulsePopulation',num2str(POPULATION),'Radius',num2str(ATTRACT_RADIUS), '.avi'));
+    % Save the movie if asked for
+    if SAVE_MOVIE == 1
+        movie2avi(frames, strcat('Population',num2str(POPULATION),'Radius',num2str(RADIUS), '.avi'));
+    end
 end

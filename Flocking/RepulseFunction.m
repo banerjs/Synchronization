@@ -1,4 +1,4 @@
-function theta = repulse_function(theta, neigh)
+function theta = RepulseFunction(theta, neigh)
 % REPULSE_FUNCTION.m is a function to determine the new heading of a
 % particle based on number of neighbours ('neigh') in its immediate
 % vicinity.

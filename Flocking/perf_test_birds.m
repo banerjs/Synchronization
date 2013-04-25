@@ -13,6 +13,7 @@ NOISE = 0; % There should be no noise in the model <- It's USELESS
 FIELD = 50; % The field of the model
 CONFINE = 0; % Confine the model? 0->No, 1->Toroidal, 2->Reflective
 REPULSE = 0; % Repulsion type? 0->None, 1->Linear, 2->Non-linear
+REPULSE_RADIUS = 2; % Radius for repulsion to set in
 
 % Tests to perform - vary population and radii
 NUM_TRIALS = 10; % Number of trials to run for each simulation
