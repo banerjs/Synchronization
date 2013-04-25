@@ -24,9 +24,10 @@ if ~exist('STAT_COLLECTING', 'var') || STAT_COLLECTING == 0
     POPULATION = 100; % Number of birds to simulate
     NOISE = 0; % Magnitude of Noise
     FIELD = 50; % Size of the arena
-    RADIUS = 2; % Field of interaction
-    REPULSE_RADIUS = 0; % Field of repulsion
-    CONFINE = 2; % Confine the model? 0->No, 1->Toroidal, 2->Reflective
+    RADIUS = 5; % Field of interaction
+    REPULSE_RADIUS = 1; % Field of repulsion
+    REPULSE_FORCE = 0.2; % On a range from 0 to 1
+    CONFINE = 1; % Confine the model? 0->No, 1->Toroidal, 2->Reflective
 end
 SPEED = 5;
 
@@ -91,7 +92,7 @@ for i = 1:size(t,2)
         desired = modulo(mean(otheta(neighbours)) + NOISE*randn(), 2*pi);
         
         if REPULSE_RADIUS > 0
-            theta(j) = modulo(desired + (repel-desired)*0.9, 2*pi);
+            theta(j) = modulo(desired+(repel-desired)*REPULSE_FORCE, 2*pi);
         else
             theta(j) = desired;
         end
