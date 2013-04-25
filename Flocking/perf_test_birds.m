@@ -11,7 +11,7 @@ STAT_COLLECTING = 1;
 % Set the parameters for simulation
 NOISE = 0; % There should be no noise in the model <- It's USELESS
 FIELD = 50; % The field of the model
-CONFINE = 0; % Confine the model? 0->No, 1->Yes
+CONFINE = 0; % Confine the model? 0->No, 1->Toroidal, 2->Reflective
 REPULSE = 0; % Repulsion type? 0->None, 1->Linear, 2->Non-linear
 
 % Tests to perform - vary population and radii
