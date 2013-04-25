@@ -4,8 +4,8 @@ clear all; clc;
 
 %% Set up the parameters of the simulation
 TIME_KEEPER = 1; % 0->there is no time-keeper, 1->there are time-keepers
-NUM_KEEPERS = 1; % Number of conductors in the arena
-KEEPERS_MODE = 1; % 0->Random, 1->Equidistant, 2->Center cluster
+NUM_KEEPERS = 2; % Number of conductors in the arena
+KEEPERS_MODE = 0; % 0->Random, 1->Equidistant, 2->Center cluster
 UPDATE_TIME = 0; % Time updates during model?
 UPDATE_NOISE = 0; % Are the updates noisy?
 DISCRETE_TIME = 1; % Parameter for discretized time only
@@ -109,7 +109,6 @@ imagesc(people,[CORRECT_INIT_TIME-DEVIATION_INIT_TIME CORRECT_INIT_TIME+DEVIATIO
 drawnow;
 
 npeople = people + 1;
-
 for i = 1:SIMULATION_TIME
     if all(BREAK_ON_DEVIATION == 1 & npeople == people)
         break;
@@ -139,21 +138,21 @@ for i = 1:SIMULATION_TIME
                                     
             % Generate the neighbours
             columns = 2*RADIUS+1; rows = 2*RADIUS+1;
-            cstart = j-RADIUS; cend = j+RADIUS; rstart = k-RADIUS; rend = k+RADIUS;
-            if j-RADIUS < 1
-                columns = columns-RADIUS+j-1;
+            rstart = j-RADIUS; rend = j+RADIUS; cstart = k-RADIUS; cend = k+RADIUS;
+            if k-RADIUS < 1
+                columns = columns-RADIUS+k-1;
                 cstart = 1;
             end
-            if j+RADIUS > SQRT_POP
-                columns = columns-RADIUS+SQRT_POP-j;
+            if k+RADIUS > SQRT_POP
+                columns = columns-RADIUS+SQRT_POP-k;
                 cend = SQRT_POP;
             end
-            if k-RADIUS < 1
-                rows = rows-RADIUS+k-1;
+            if j-RADIUS < 1
+                rows = rows-RADIUS+j-1;
                 rstart = 1;
             end
-            if k+RADIUS > SQRT_POP
-                rows = rows-RADIUS+SQRT_POP-k;
+            if j+RADIUS > SQRT_POP
+                rows = rows-RADIUS+SQRT_POP-j;
                 rend = SQRT_POP;
             end
             neighbours = npeople(rstart:rend,cstart:cend);

@@ -134,21 +134,21 @@ for i = 1:SIMULATION_TIME
                                     
             % Generate the neighbours
             columns = 2*RADIUS+1; rows = 2*RADIUS+1;
-            cstart = j-RADIUS; cend = j+RADIUS; rstart = k-RADIUS; rend = k+RADIUS;
-            if j-RADIUS < 1
-                columns = columns-RADIUS+j-1;
+            rstart = j-RADIUS; rend = j+RADIUS; cstart = k-RADIUS; cend = k+RADIUS;
+            if k-RADIUS < 1
+                columns = columns-RADIUS+k-1;
                 cstart = 1;
             end
-            if j+RADIUS > SQRT_POP
-                columns = columns-RADIUS+SQRT_POP-j;
+            if k+RADIUS > SQRT_POP
+                columns = columns-RADIUS+SQRT_POP-k;
                 cend = SQRT_POP;
             end
-            if k-RADIUS < 1
-                rows = rows-RADIUS+k-1;
+            if j-RADIUS < 1
+                rows = rows-RADIUS+j-1;
                 rstart = 1;
             end
-            if k+RADIUS > SQRT_POP
-                rows = rows-RADIUS+SQRT_POP-k;
+            if j+RADIUS > SQRT_POP
+                rows = rows-RADIUS+SQRT_POP-j;
                 rend = SQRT_POP;
             end
             neighbours = npeople(rstart:rend,cstart:cend);
