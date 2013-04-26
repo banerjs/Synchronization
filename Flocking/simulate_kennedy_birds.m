@@ -22,7 +22,8 @@ POPULATION = 200; % Number of birds to simulate
 NOISE = 0; % Magnitude of Noise
 SPEED = 5; % Magnitude of the velocity
 FIELD = 50; % Size of the arena
-RADIUS = 0; % Field of interaction. 0 -> do not use nearest neighbour
+RADIUS = 50; % Field of interaction. 0 -> do not use nearest neighbour
+CONFINE = 1; % Confine the model? 0->No, 1->Toroidal, 2->Reflective
 ROOST = [FIELD/2; FIELD/2]; % Set the roost position of the particle
 P_INCREMENT = 0.05; % Set p_increment according to the model
 G_INCREMENT = 0.05; % Set g_increment according to the model
@@ -37,19 +38,29 @@ best = positions; % Create an array for the best solution
 modulo = @(x,n) (x - n*floor(x/n));
 
 % For loop to do the simulation
+otheta = theta + 1;
+
 for i = 1:size(t,2)
     % Plot the positions of the birds
-    plot(positions(1,:), positions(2,:), '.', ROOST(1), ROOST(2), 'ro');
-    axis([0 FIELD 0 FIELD]);
-    %axis([-5*FIELD 5*FIELD -5*FIELD 5*FIELD]);
+    plot(positions(1,:), positions(2,:), '.', ROOST(1), ROOST(2), 'ro', best(1,:), best(2,:), 'gs', best(1,gbest), best(2,gbest), 'rs');
+    if CONFINE > 0
+        axis([0 FIELD 0 FIELD]);
+    else
+        axis([-5*FIELD 5*FIELD -5*FIELD 5*FIELD])
+    end
     title(['N = ', num2str(POPULATION), ', R = ', num2str(RADIUS)]);
     frames(:,i) = getframe;
+
+    otheta = theta; % Store the previous heading of everyone
     
     % Update the heading and position of all the birds
-    positions(1,:) = modulo(positions(1,:)+SPEED*dT.*cos(theta), FIELD);
-    %positions(1,:) = positions(1,:)+SPEED*dT.*cos(theta);
-    positions(2,:) = modulo(positions(2,:)+SPEED*dT.*sin(theta), FIELD);
-    %positions(2,:) = positions(2,:)+SPEED*dT.*sin(theta);
+    if CONFINE == 0 || CONFINE == 2
+        positions(1,:) = positions(1,:)+SPEED*dT.*cos(theta);
+        positions(2,:) = positions(2,:)+SPEED*dT.*sin(theta);
+    else % CONFINE == 1
+        positions(1,:) = modulo(positions(1,:)+SPEED*dT.*cos(theta), FIELD);
+        positions(2,:) = modulo(positions(2,:)+SPEED*dT.*sin(theta), FIELD);
+    end
     
     for j = 1:POPULATION
         % Check if nearest neighbour interactions are enabled
@@ -77,11 +88,20 @@ for i = 1:size(t,2)
     
     % Get the global best
     [~, gbest] = min(sqrt((best(1,:)-ROOST(1)).^2 + (best(2,:)-ROOST(2)).^2));
+    
+    if CONFINE == 2
+        need_x = abs(positions(1,:)-FIELD/2) > FIELD/2;
+        need_y = abs(positions(2,:)-FIELD/2) > FIELD/2;
+        need_xy = need_x & need_y;
+        
+        theta(need_x) = modulo(pi-otheta(need_x), 2*pi);
+        theta(need_y) = modulo(2*pi-otheta(need_y), 2*pi);
+        theta(need_xy) = modulo(pi+otheta(need_xy), 2*pi);
+    end
 end
 % endfor
 
 % Plot the birds
-figure;
 plot(positions(1,:), positions(2,:), '.', ROOST(1), ROOST(2), 'ro');
 axis([0 FIELD 0 FIELD]);
 title(['Final Position, N = ', num2str(POPULATION)]);

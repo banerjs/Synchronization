@@ -23,7 +23,7 @@ end
 if ~exist('STAT_COLLECTING', 'var') || STAT_COLLECTING == 0
     POPULATION = 400; % Number of birds to simulate
     NOISE = 0; % Magnitude of Noise
-    FIELD = 10; % Size of the arena
+    FIELD = 50; % Size of the arena
     RADIUS = 3; % Field of interaction
     CONFINE = 2; % Confine the model? 0->No, 1->Toroidal, 2->Reflective
 end

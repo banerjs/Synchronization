@@ -27,7 +27,7 @@ if ~exist('STAT_COLLECTING', 'var') || STAT_COLLECTING == 0
     RADIUS = 5; % Field of interaction
     REPULSE_RADIUS = 1; % Field of repulsion
     REPULSE_FORCE = 0.2; % On a range from 0 to 1
-    CONFINE = 1; % Confine the model? 0->No, 1->Toroidal, 2->Reflective
+    CONFINE = 2; % Confine the model? 0->No, 1->Toroidal, 2->Reflective
 end
 SPEED = 5;
 

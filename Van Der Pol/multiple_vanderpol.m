@@ -6,7 +6,7 @@ clear all; clc;
 
 %% Setup the simulator
 % Set the timing parameters and Number of Oscillators
-N = 2;
+N = 9;
 T = 300;
 tspan = [0 T];
 
@@ -20,8 +20,8 @@ X = i_start + (i_end-i_start).*rand(2*N,1);
 E = rand(N,1); % 10.^linspace(0,log(N),N)'% Create a vector of E's
 
 % Create the adjacency matrix
-delta = 0.3;
-temp = ones(N); %rand(N);
+delta = -10;
+temp = ones(N)./(N-1); %rand(N);
 A = eye(N) - (temp-(diag(diag(temp))));
 
 % Create the forcing function for the oscillators
@@ -40,13 +40,13 @@ h1 = figure;
 h2 = figure;
 for i = 1:N
     figure(h1);
-    subplot(2,1,i);
+    subplot(3,3,i);
     plot(states(:,i),states(:,N+i));
-    axis([-3 3 -3 3]);
+    %axis([-3 3 -3 3]);
     title(['Starting Pos = ', num2str(X(i)), ',', num2str(X(N+i))]);
     figure(h2);
-    subplot(2,1,i);
+    subplot(3,3,i);
     plot(t,states(:,i));
-    axis([0 T -3 3]);
+    axis([0 T/5 -3 3]);
     title(['Epsilon = ', num2str(E(i))]);
 end

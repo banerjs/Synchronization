@@ -3,9 +3,9 @@ function t = NuclearForces(pos, neighbours, positions, radius, theta)
 % on this information it calculates the new heading of a bird
 
 % Set constants for the forces
-A = 0.85;
-H = 1;
-S = radius/4;
+A = -0.85;
+H = -1;
+S = radius/2;
 
 % Calculate the displacement and distance of other birds
 disp = positions(:,neighbours) - [pos(1)*ones(1,size(positions(neighbours),2)); ...
